@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import styles from "./app.module.css";
+import { ListCase } from "./components/ul-list/list-case";
+import { FormCase } from "./components/form/form-case";
 
 export const App = () => {
   const [isCase, setIsCase] = useState([]);
@@ -10,11 +12,21 @@ export const App = () => {
   useEffect(() => {
     fetch(`http://localhost:3005/case`)
       .then((response) => response.json())
-      .then((data) => setIsCase(data));
+      .then((data) => setIsCase(data))
+      .catch((error) => console.error("Ошибка при загрузке дел:", error));
   }, []);
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (newCase.id) {
+      updateCase(newCase.id);
+    } else {
+      addNewCase();
+    }
+  };
+
   const addNewCase = () => {
-    fetch(`http://localhost:3005/case`, {
+    fetch("http://localhost:3005/case", {
       method: "POST",
       headers: { "Content-Type": "application/json; charset=utf-8" },
       body: JSON.stringify(newCase),
@@ -22,16 +34,19 @@ export const App = () => {
       .then((response) => response.json())
       .then((addedCase) => {
         setIsCase((prevCase) => [...prevCase, addedCase]);
-        setNewCase({ name: "", title: "" });
-      });
+        resetForm();
+      })
+      .catch((error) => console.error("Ошибка при добавлении дела:", error));
   };
 
   const deleteCase = (id) => {
     fetch(`http://localhost:3005/case/${id}`, {
       method: "DELETE",
-    }).then(() => {
-      setIsCase((prevCase) => prevCase.filter((isCase) => isCase.id !== id));
-    });
+    })
+      .then(() => {
+        setIsCase((prevCase) => prevCase.filter((caseItem) => caseItem.id !== id));
+      })
+      .catch((error) => console.error("Ошибка при удалении дела:", error));
   };
 
   const updateCase = (id) => {
@@ -41,20 +56,34 @@ export const App = () => {
       body: JSON.stringify(newCase),
     })
       .then((response) => response.json())
-      .then((updateCase) => {
+      .then((updatedCase) => {
         setIsCase((prevCase) =>
-          prevCase.map(
-            (isCase) => (isCase = isCase.id === id ? updateCase : isCase)
-          )
+          prevCase.map((caseItem) => (caseItem.id === id ? updatedCase : caseItem))
         );
-        setNewCase({ name: "", title: "" });
-      });
+        resetForm();
+      })
+      .catch((error) => console.error("Ошибка при обновлении дела:", error));
+  };
+
+  const editCase = (id) => {
+    const caseToEdit = isCase.find((caseItem) => caseItem.id === id);
+    if (caseToEdit) {
+      setNewCase(caseToEdit);
+    }
+  };
+
+  const resetForm = () => {
+    setNewCase({ id: null, name: "", title: "" });
   };
 
   const filteredCase = isCase.filter(
     (isCase) =>
-      isCase.name.toLowerCase().includes(searchCase.toLocaleLowerCase()) ||
-      isCase.title.toLowerCase().includes(searchCase.toLocaleLowerCase())
+      (isCase &&
+        isCase.name &&
+        isCase.name.toLowerCase().includes(searchCase.toLocaleLowerCase())) ||
+      (isCase &&
+        isCase.name &&
+        isCase.title.toLowerCase().includes(searchCase.toLocaleLowerCase()))
   );
 
   const sortedCase = isSorted
@@ -63,50 +92,23 @@ export const App = () => {
 
   return (
     <div className={styles.app}>
-	<div className={styles.headerSearch}>
-      <button
-        onClick={() => setIsSorted(!isSorted)}
-      >
-        {isSorted ? "Сбросить сортировку" : "Сортировать по алфавиту"}
-      </button>
+      <div className={styles.headerSearch}>
+        <button onClick={() => setIsSorted(!isSorted)}>
+          {isSorted ? "Сбросить сортировку" : "Сортировать по алфавиту"}
+        </button>
 
-      <input
-        type="text"
-        placeholder="Поиск..."
-        value={searchCase}
-        onChange={(e) => setSearchCase(e.target.value)}
-      />
-	</div>
-
-      <div>
         <input
           type="text"
-          placeholder="Название нового дела"
-          value={newCase.name}
-          onChange={(e) => setNewCase({ ...newCase, name: e.target.value })}
+          placeholder="Поиск..."
+          value={searchCase}
+          onChange={(e) => setSearchCase(e.target.value)}
         />
-        <input
-          type="text"
-          placeholder="Описание нового дела"
-          value={newCase.title}
-          onChange={(e) => setNewCase({ ...newCase, title: e.target.value })}
-        />
-        <button onClick={addNewCase}>Добавить</button>
       </div>
 
-      <h1 className={styles.header}>Список дел</h1>
+      <FormCase handleSubmit={handleSubmit} newCase={newCase} setNewCase={setNewCase} />
 
-      <ul className={styles.list}>
-        {sortedCase.map(({ id, name, title }) => (
-          <li key={id} className={styles.listItem}>
-            {name}.  {title}
-			<div className={styles.buttonList}>
-            <button onClick={() => deleteCase(id)}>Удалить</button>
-            <button onClick={() => updateCase(id)}>Изменить</button>
-			</div>
-          </li>
-        ))}
-      </ul>
+      <h1 className={styles.header}>Список дел</h1>
+      <ListCase sortedCase={sortedCase} deleteCase={deleteCase} editCase={editCase} />
     </div>
   );
 };
