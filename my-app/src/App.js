@@ -51,9 +51,11 @@ export const App = () => {
       });
   };
 
-  const filteredCase = isCase.filter(
-    (isCase) =>
-      isCase.name.toLowerCase().includes(searchCase.toLocaleLowerCase()) ||
+ const filteredCase = isCase.filter(
+    (isCase) => isCase &&
+      isCase.name && isCase.name.toLowerCase().includes(searchCase.toLocaleLowerCase()) ||
+	  isCase &&
+      isCase.name &&
       isCase.title.toLowerCase().includes(searchCase.toLocaleLowerCase())
   );
 
