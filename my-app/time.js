@@ -12,8 +12,8 @@ export const useUpdateCase = (setListCase) => {
       .then((response) => response.json())
       .then((updateCase) => {
         setListCase((prevCase) =>
-          prevCase.map(
-            (isCase) => (isCase.id === id ? updateCase : isCase)
+          prevCase.map((listCase) =>
+            listCase.id === id ? updateCase : listCase
           )
         );
         setNewCase({ name: "", title: "" });
@@ -21,22 +21,22 @@ export const useUpdateCase = (setListCase) => {
   };
 
   const addNewCase = () => {
-	fetch(`http://localhost:3005/case`, {
-	  method: "POST",
-	  headers: { "Content-Type": "application/json; charset=utf-8" },
-	  body: JSON.stringify(newCase),
-	})
-	  .then((response) => response.json())
-	  .then((addedCase) => {
-		setListCase((prevCase) => [...prevCase, addedCase]);
-		setNewCase({ name: "", title: "" });
-	  });
+    fetch(`http://localhost:3005/case`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json; charset=utf-8" },
+      body: JSON.stringify(newCase),
+    })
+      .then((response) => response.json())
+      .then((addedCase) => {
+        setListCase((prevCase) => [...prevCase, addedCase]);
+        setNewCase({ name: "", title: "" });
+      });
   };
 
   return {
-	updateCase,
-	newCase,
-	addNewCase,
-	setNewCase
-}
+    updateCase,
+    newCase,
+    addNewCase,
+    setNewCase,
+  };
 };
