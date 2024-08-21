@@ -7,22 +7,33 @@ import {
   useDeleteCase,
   useUpdateCase,
 } from "./components/hooks";
+import { InputSearch } from "./components/input-search/input-search";
 
 export const App = () => {
   const [listCase, setListCase] = useState([]);
-  const [newCase, setNewCase] = useState({ name: "", title: "" });
+  const [newCase, setNewCase] = useState({ name: "" });
   const [isSorted, setIsSorted] = useState(false);
   const [searchCase, setSearchCase] = useState("");
 
   const resetForm = () => {
-    setNewCase({ id: null, name: "", title: "" });
+    setNewCase({ id: null, name: "" });
   };
 
   useEffect(() => {
-    fetch(`http://localhost:3005/case`)
-      .then((response) => response.json())
-      .then((data) => setListCase(data))
-      .catch((error) => console.error("Ошибка при загрузке дел:", error));
+    const fetchData = async () => {
+      try {
+        const response = await fetch('http://localhost:3005/case');
+        if (!response.ok) {
+          throw new Error(`Ошибка HTTP: ${response.status}`);
+        }
+        const data = await response.json();
+        setListCase(data);
+      } catch (error) {
+        console.error('Ошибка при загрузке дел:', error);
+      }
+    };
+
+    fetchData();
   }, []);
 
   const handleSubmit = (e) => {
@@ -46,7 +57,7 @@ export const App = () => {
     newCase,
     setListCase,
     resetForm,
-	setNewCase
+    setNewCase,
   });
 
   const editCase = (id) => {
@@ -58,12 +69,9 @@ export const App = () => {
 
   const filteredCase = listCase.filter(
     (listCase) =>
-      (listCase &&
-        listCase.name &&
-        listCase.name.toLowerCase().includes(searchCase.toLocaleLowerCase())) ||
-      (listCase &&
-        listCase.name &&
-        listCase.title.toLowerCase().includes(searchCase.toLocaleLowerCase()))
+      listCase &&
+      listCase.name &&
+      listCase.name.toLowerCase().includes(searchCase.toLocaleLowerCase())
   );
 
   const sortedCase = isSorted
@@ -72,18 +80,12 @@ export const App = () => {
 
   return (
     <div className={styles.app}>
-      <div className={styles.headerSearch}>
-        <button onClick={() => setIsSorted(!isSorted)}>
-          {isSorted ? "Сбросить сортировку" : "Сортировать по алфавиту"}
-        </button>
-
-        <input
-          type="text"
-          placeholder="Поиск..."
-          value={searchCase}
-          onChange={(e) => setSearchCase(e.target.value)}
-        />
-      </div>
+      <InputSearch
+        isSorted={isSorted}
+        searchCase={searchCase}
+        setIsSorted={setIsSorted}
+        setSearchCase={setSearchCase}
+      />
 
       <FormCase
         handleSubmit={handleSubmit}

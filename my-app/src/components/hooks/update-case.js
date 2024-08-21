@@ -13,7 +13,7 @@ export const useUpdateCase = ({ newCase, setListCase, setNewCase }) => {
               (listCase = listCase.id === id ? updateCase : listCase)
           )
         );
-        setNewCase({ name: "", title: "" });
+        setNewCase({ name: "" });
       });
   };
   return updateCase;
