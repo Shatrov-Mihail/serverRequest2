@@ -7,19 +7,27 @@ import {
   useDeleteCase,
   useUpdateCase,
 } from "./components/hooks";
+<<<<<<< Updated upstream
 import { InputSearch } from "./components/input-search/input-search";
 
 export const App = () => {
   const [listCase, setListCase] = useState([]);
   const [newCase, setNewCase] = useState({ name: "" });
+=======
+
+export const App = () => {
+  const [newCase, setNewCase] = useState({ name: "", title: "" });
+>>>>>>> Stashed changes
   const [isSorted, setIsSorted] = useState(false);
   const [searchCase, setSearchCase] = useState("");
+  const [listCase, setListCase] = useState([]);
 
   const resetForm = () => {
     setNewCase({ id: null, name: "" });
   };
 
   useEffect(() => {
+<<<<<<< Updated upstream
     const fetchData = async () => {
       try {
         const response = await fetch('http://localhost:3005/case');
@@ -34,7 +42,17 @@ export const App = () => {
     };
 
     fetchData();
+=======
+    fetch(`http://localhost:3005/case`)
+      .then((response) => response.json())
+      .then((data) => setListCase(data))
+      .catch((error) => console.error("Ошибка при загрузке дел:", error));
+>>>>>>> Stashed changes
   }, []);
+
+  const resetForm = () => {
+    setNewCase({ id: null, name: "", title: "" });
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -45,6 +63,7 @@ export const App = () => {
     }
   };
 
+<<<<<<< Updated upstream
   const addNewCase = useAddNewCase({
     setListCase,
     resetForm,
@@ -59,6 +78,11 @@ export const App = () => {
     resetForm,
     setNewCase,
   });
+=======
+  const addNewCase = useAddNewCase({ resetForm, newCase, setListCase });
+  const deleteCase = useDeleteCase({setListCase});
+  const updateCase = useUpdateCase({ newCase, resetForm, setListCase });
+>>>>>>> Stashed changes
 
   const editCase = (id) => {
     const caseToEdit = listCase.find((caseItem) => caseItem.id === id);
@@ -68,10 +92,20 @@ export const App = () => {
   };
 
   const filteredCase = listCase.filter(
+<<<<<<< Updated upstream
     (listCase) =>
       listCase &&
       listCase.name &&
       listCase.name.toLowerCase().includes(searchCase.toLocaleLowerCase())
+=======
+    (ListCase) =>
+      (ListCase &&
+        ListCase.name &&
+        ListCase.name.toLowerCase().includes(searchCase.toLocaleLowerCase())) ||
+      (ListCase &&
+        ListCase.name &&
+        ListCase.title.toLowerCase().includes(searchCase.toLocaleLowerCase()))
+>>>>>>> Stashed changes
   );
 
   const sortedCase = isSorted
@@ -87,6 +121,17 @@ export const App = () => {
         setSearchCase={setSearchCase}
       />
 
+<<<<<<< Updated upstream
+=======
+        <input
+          type="text"
+          placeholder="Поиск..."
+          value={searchCase}
+          onChange={(e) => setSearchCase(e.target.value)}
+        />
+      </div>
+
+>>>>>>> Stashed changes
       <FormCase
         handleSubmit={handleSubmit}
         newCase={newCase}
